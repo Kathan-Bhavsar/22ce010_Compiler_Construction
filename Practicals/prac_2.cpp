@@ -1,58 +1,85 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
+#include <string>
 using namespace std;
 
 int main() {
-    int numSymbols, numStates, initialState, numAcceptingStates;
+    int numSymbols, numStates, startState, numAcceptingStates;
 
     cout << "Enter the number of input symbols: ";
     cin >> numSymbols;
-    vector<char> symbols(numSymbols);
+
     cout << "Enter the input symbols: ";
-    for (char &symbol : symbols) cin >> symbol;
+    vector<char> symbols(numSymbols);
+    for (int i = 0; i < numSymbols; i++) {
+        cin >> symbols[i];
+    }
 
     cout << "Enter the number of states: ";
     cin >> numStates;
+
     cout << "Enter the initial state: ";
-    cin >> initialState;
+    cin >> startState;
 
     cout << "Enter the number of accepting states: ";
     cin >> numAcceptingStates;
     vector<int> acceptingStates(numAcceptingStates);
     cout << "Enter the accepting states: ";
-    for (int &state : acceptingStates) cin >> state;
+    for (int i = 0; i < numAcceptingStates; i++) {
+        cin >> acceptingStates[i];
+    }
 
-    vector<vector<int>> transitions(numStates, vector<int>(numSymbols));
-    for (int i = 0; i < numStates; i++) {
+    vector<vector<int>> transitionTable(numStates + 1, vector<int>(numSymbols));
+    for (int i = 1; i <= numStates; i++) {
         for (int j = 0; j < numSymbols; j++) {
-            cout << "Transition for state " << i << " and symbol " << symbols[j] << ": ";
-            cin >> transitions[i][j];
+            cout << "Enter transition for state " << i << " and symbol " << symbols[j] << ": ";
+            cin >> transitionTable[i][j];
         }
     }
 
-    int choice;
+    string inputString;
+    int continueFlag;
     do {
-        string input;
         cout << "Enter the input string: ";
-        cin >> input;
+        cin >> inputString;
 
-        int currentState = initialState;
-        for (char c : input) {
-            int index = find(symbols.begin(), symbols.end(), c) - symbols.begin();
-            if (index >= numSymbols) {
-                currentState = -1;
+        int currentState = startState;
+        bool isValid = true;
+
+        for (char c : inputString) {
+            int symbolIndex = -1;
+            for (int i = 0; i < numSymbols; i++) {
+                if (c == symbols[i]) {
+                    symbolIndex = i;
+                    break;
+                }
+            }
+
+            if (symbolIndex == -1) {
+                isValid = false;
                 break;
             }
-            currentState = transitions[currentState][index];
+
+            currentState = transitionTable[currentState][symbolIndex];
         }
 
-        bool valid = (currentState != -1 && find(acceptingStates.begin(), acceptingStates.end(), currentState) != acceptingStates.end());
-        cout << (valid ? "Valid string" : "Invalid string") << endl;
+        bool isAcceptingState = false;
+        for (int i = 0; i < numAcceptingStates; i++) {
+            if (currentState == acceptingStates[i]) {
+                isAcceptingState = true;
+                break;
+            }
+        }
 
-        cout << "Enter 1 to validate another string, or 0 to exit: ";
-        cin >> choice;
-    } while (choice != 0);
+        if (isValid && isAcceptingState) {
+            cout << "Valid string\n";
+        } else {
+            cout << "Invalid string\n";
+        }
+
+        cout << "Enter 1 to validate another string, 0 to exit: ";
+        cin >> continueFlag;
+    } while (continueFlag != 0);
 
     return 0;
 }
